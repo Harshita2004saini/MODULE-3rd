@@ -5,48 +5,39 @@ contract MyToken {
     string public name;
     string public symbol;
     uint256 public totalSupply;
-    mapping(address => uint256) public balanceOf;
+    mapping(address => uint256) public balances;
 
     address public owner;
 
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Burn(address indexed from, uint256 value);
-
-    constructor(string memory _name, string memory _symbol, uint256 _totalSupply) {
-        name = _name;
-        symbol = _symbol;
-        totalSupply = _totalSupply;
-        balanceOf[msg.sender] = _totalSupply;
-        owner = msg.sender;
-    }
-
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only the contract owner can perform this action");
+        require(msg.sender == owner, "Only the contract owner can call this function");
         _;
     }
 
-    function mint(address to, uint256 amount) public onlyOwner {
-        balanceOf[to] += amount;
+    constructor() {
+        name = "Doge Token";
+        symbol = "DT";
+        owner = msg.sender;
+    }
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        require(to != address(0), "Invalid address");
         totalSupply += amount;
+        balances[to] += amount;
     }
 
-    function transfer(address to, uint256 amount) public {
-        require(amount > 0, "Amount must be greater than zero");
-        require(balanceOf[msg.sender] >= amount, "Insufficient balance");
-
-        balanceOf[msg.sender] -= amount;
-        balanceOf[to] += amount;
-
-        emit Transfer(msg.sender, to, amount);
-    }
-
-    function burn(uint256 amount) public {
-        require(amount > 0, "Amount must be greater than zero");
-        require(balanceOf[msg.sender] >= amount, "Insufficient balance");
-
-        balanceOf[msg.sender] -= amount;
+    function burn(uint256 amount) external {
+        require(amount > 0, "Invalid amount");
+        require(balances[msg.sender] >= amount, "Insufficient balance");
         totalSupply -= amount;
+        balances[msg.sender] -= amount;
+    }
 
-        emit Burn(msg.sender, amount);
+    function transfer(address to, uint256 amount) external {
+        require(to != address(0), "Invalid address");
+        require(amount > 0, "Invalid amount");
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+        balances[to] += amount;
     }
 }
