@@ -1,56 +1,55 @@
-# MyToken Contract
-
-The MyToken contract is an ERC20-compliant token contract that allows users to create and manage their own token. This contract provides functionalities such as token minting, transferring tokens between addresses, and burning tokens.
-## Description
-
-The purpose of this project is to enable users to have full control over their own token by creating a customizable ERC20 token contract. Users can set the name, symbol, and total supply of their token during deployment. The contract owner has the ability to mint new tokens and distribute them to specific addresses. Users can transfer their tokens to other addresses, allowing for peer-to-peer transactions. Additionally, users can burn their tokens if they no longer need them, effectively reducing the token supply.
-
-By providing a flexible and customizable token contract, this project empowers individuals, organizations, and developers to create and manage their own tokens on the Ethereum blockchain. This token can be used for various purposes, such as creating a reward system, facilitating in-app transactions, or launching a new cryptocurrency.
-## Getting Started
-
-### Installing
-
-To run the contract, follow these steps:
-
-1. Install the project dependencies by running the following command:
-
-   ```
-   npm install
-   ```
-2. Start a blockchain locally by running the command: 
-   ```
-   npx hardhat node
-   ```
-3. Test the contract by running the command: 
-   ```
-   npx hardhat test
-   ```
-
-4. Deploy the UmarContract smart contract by running the deployment script:
-
-   ```
-   npx hardhat run scripts/deploy.js --network localhost
-   ```
-
+## Project setup
+We can do this project locally on our machine or in the cloud using the pre-installed environment on GitPod. GitPod is a great option if you're on a mobile phone,
+or just want to get started without installing anything. We use remix here.
+## ## Description
+We will write a smart contract to create your own token on a local HardHat network. Once you have your contract, you should be able to use remix to interact with it. From remix, the contract owner should be able to mint tokens to a provided address. Any user should be able to burn and transfer tokens.
 ### Executing program
 
-* Go to [remix](remix.ethereum.org) IDE.
-* Paste the contract in the IDE.
-* Compile the contract.
-* Select the `Dev - Hardhat Provider` as the environment in Deploy tab.
-* Paste you contract address in remix and click on `At Address`.
-* Play with your contract in remix!!
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
-## Help
+contract MyToken {
+    string public name;
+    string public symbol;
+    uint256 public totalSupply;
+    mapping(address => uint256) public balances;
 
-If you encounter any issues or have any questions, you can refer to the project's documentation or seek help from the project contributors.
+    address public owner;
 
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the contract owner can call this function");
+        _;
+    }
 
-## Authors
+    constructor() {
+        name = "Doge Token";
+        symbol = "DT";
+        owner = msg.sender;
+    }
 
-* -[Umar Khan](github.com/UmarKhan19)
+    function mint(address to, uint256 amount) external onlyOwner {
+        require(to != address(0), "Invalid address");
+        totalSupply += amount;
+        balances[to] += amount;
+    }
 
+    function burn(uint256 amount) external {
+        require(amount > 0, "Invalid amount");
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        totalSupply -= amount;
+        balances[msg.sender] -= amount;
+    }
 
-## License
+    function transfer(address to, uint256 amount) external {
+        require(to != address(0), "Invalid address");
+        require(amount > 0, "Invalid amount");
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+        balances[to] += amount;
+    }
+}
+       
+## Author
+Harshita saini
+21bcs5576@cuchd.in
 
-This code is released under the MIT License. Feel free to use, modify, and distribute it as per the terms of the license.
